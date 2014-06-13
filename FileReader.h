@@ -20,10 +20,8 @@
 #include <functional>
 #include <thread>
 #include <mutex>
+#include "Constants.h"
 using namespace std;
-
-#define NUM_COLUMN 3073
-#define NUM_ROW 20000
 
 class FileReader
 {

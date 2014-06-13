@@ -41,7 +41,7 @@ void FileReader::split(const string& src, const string& delim)
     dataSet[rowNum * NUM_COLUMN + NUM_COLUMN-1] = value;
     
     io_mutex.lock();
-    cout << rowNum << " is loaded..." << endl;
+    cout << rowNum+1 << " is loaded..." << endl;
     io_mutex.unlock();
 }
 
@@ -74,9 +74,9 @@ FileReader::FileReader()
 void FileReader::readFileList(string dirPath)
 {
     thread thrd1(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train1.csv"));
-    thread thrd2(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train1.csv"));
-    thread thrd3(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train1.csv"));
-    thread thrd4(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train1.csv"));
+    thread thrd2(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train2.csv"));
+    thread thrd3(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train3.csv"));
+    thread thrd4(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train4.csv"));
     thrd1.join();
     thrd2.join();
     thrd3.join();

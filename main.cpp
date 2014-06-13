@@ -7,14 +7,20 @@
 //
 
 #include "FileReader.h"
+#include "DecisionTree.h"
 #include <iostream>
 #include <string>
 using namespace std;
+
 
 int main(int argc, const char * argv[])
 {
     FileReader reader;
     reader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/");
+
+    DecisionTree tree(reader.dataSet);
+    tree.createTree();
+//    Node *root = tree.getRoot();
     
     return 0;
 }
