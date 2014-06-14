@@ -41,9 +41,9 @@ void FileReader::split(const string& src, const string& delim)
     double value = atof(valueStr.c_str());
     dataSet[rowNum * NUM_COLUMN + NUM_COLUMN-1] = value;
     
-//    io_mutex.lock();
+    io_mutex.lock();
     cout << rowNum+1 << " is loaded..." << endl;
-//    io_mutex.unlock();
+    io_mutex.unlock();
 }
 
 void FileReader::readSingleFile(string filePath)

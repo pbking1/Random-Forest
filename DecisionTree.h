@@ -14,7 +14,7 @@
 #include "Constants.h"
 using namespace std;
 
-#define tolS 1
+#define tolS 0.001
 #define tolN 4
 
 struct Node {

@@ -9,7 +9,7 @@
 #include "DecisionTree.h"
 #include <algorithm>
 #include <set>
-#include <cmath>
+#include <math.h>
 
 // Private methods
 double DecisionTree::regLeaf(vector<int> span)
@@ -58,8 +58,12 @@ double DecisionTree::Gini(vector<int> span)
         labelCnt[label]++;
     }
     
-    for (int label = 0; label < NUM_CATEGORIES; label++)
-        result += ((double)labelCnt[label] / (double)span.size()) * ((double)labelCnt[label] / (double)span.size());
+    double totalCheck = 0;
+    for (int label = 0; label < NUM_CATEGORIES; label++) {
+        double percent = (double)labelCnt[label] / (double)span.size();
+        result += percent * percent;
+        totalCheck += percent;
+    }
     result = 1.0 - result;
     return result;
 }
@@ -81,17 +85,31 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bes
     double newG = INFINITY;
     vector<int> lSpan, rSpan;
     
-    for (int feature = 1; feature < NUM_COLUMN; feature++) {
+    
+//    int total_feature = (int)ceil(sqrt((double)span.size()));
+//    int rand_feature = 0;
+//    srand((unsigned)time(NULL));
+//    set<int> features;
+//    while (features.size() < total_feature) {
+//        rand_feature = rand() % (int)span.size();
+//        if (!featureChosen[rand_feature])
+//            features.insert(rand_feature);
+//    }
+    
+#warning 这里临时设置一个值
+    for (int feature = 1; feature < 56; feature++) {
         if (featureChosen[feature])
             continue;
         
         // Optimization[1]: vector -> set
         set<int> valueSet;
         for (vector<int>::iterator iter = span.begin(); iter != span.end(); iter++) {
-            valueSet.insert(*iter);
+            valueSet.insert(dataSet[*iter * NUM_COLUMN + feature]);
         }
+        cout << "[Column set count] " << feature << endl;
         
         for (set<int>::iterator iter = valueSet.begin(); iter != valueSet.end(); iter++) {
+//            cout << "[Inner] " << *iter << endl;
             binSplitData(span, lSpan, rSpan, feature, dataSet[*iter * NUM_COLUMN + feature]);
             
             if (lSpan.size() < tolN || rSpan.size() < tolN) continue;
@@ -99,6 +117,7 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bes
             if (newG < bestG) {
                 bestIndex = feature;
                 bestValue = dataSet[*iter * NUM_COLUMN + feature];
+                bestG = newG;
             }
         }
     }
@@ -106,7 +125,7 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bes
     if (G - bestG < tolS)
         bestIndex = -1, bestValue = regLeaf(span);
     binSplitData(span, lSpan, rSpan, bestIndex, bestValue);
-    if (lSpan.size() < tolN || rSpan.size() < tolS)
+    if (lSpan.size() < tolN || rSpan.size() < tolN)
         bestIndex = -1, bestValue = regLeaf(span);
     else { /*already stored bestIndex and bestValue*/ }
 }
@@ -125,6 +144,7 @@ void DecisionTree::binSplitData(vector<int> pSpan, vector<int> &lSpan, vector<in
 
 void DecisionTree::recursive_create_tree(vector<int> span, Node* &subroot)
 {
+    static int node_count = 0;
     int bestIndex = 0;
     double bestValue = 0;
     chooseBestSplit(span, bestIndex, bestValue);
@@ -132,7 +152,10 @@ void DecisionTree::recursive_create_tree(vector<int> span, Node* &subroot)
     if (bestIndex == -1) return;
     
     subroot = new Node(bestIndex, bestValue);
+    node_count++;
     featureChosen[bestIndex] = true;
+    cout << "[Create Node] [Index] " << bestIndex << " [Value] " << bestValue << endl;
+    cout << "[Tree Node Count] " << node_count << endl;
     
     vector<int> lSpan, rSpan;
     binSplitData(span, lSpan, rSpan, bestIndex, bestValue);
