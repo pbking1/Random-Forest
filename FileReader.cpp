@@ -7,6 +7,7 @@
 //
 
 #include "FileReader.h"
+#include <cmath>
 
 #define NUM_INFILE 4
 
@@ -40,13 +41,14 @@ void FileReader::split(const string& src, const string& delim)
     double value = atof(valueStr.c_str());
     dataSet[rowNum * NUM_COLUMN + NUM_COLUMN-1] = value;
     
-    io_mutex.lock();
+//    io_mutex.lock();
     cout << rowNum+1 << " is loaded..." << endl;
-    io_mutex.unlock();
+//    io_mutex.unlock();
 }
 
 void FileReader::readSingleFile(string filePath)
 {
+    int rowCnt = 0;
     ifstream infile(filePath);
     string word;
     string delim(",");
@@ -57,6 +59,11 @@ void FileReader::readSingleFile(string filePath)
         {
             getline(infile, textline);
             split(textline, delim);
+            rowCnt++;
+            if (rowCnt >= row_eachfile) {
+                infile.close();
+                return;
+            }
         }
     }
     infile.close();
@@ -71,14 +78,22 @@ FileReader::FileReader()
     dataSet = (double *)pBuf;
 }
 
-void FileReader::readFileList(string dirPath)
+void FileReader::readFileList(string dirPath, int thresold)
 {
-    thread thrd1(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train1.csv"));
-    thread thrd2(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train2.csv"));
-    thread thrd3(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train3.csv"));
-    thread thrd4(bind(&FileReader::readSingleFile, this, "/Users/apple/Developer/Random-Forest/Random-Forest/train4.csv"));
-    thrd1.join();
-    thrd2.join();
-    thrd3.join();
-    thrd4.join();
+    if (thresold != -1)
+        this->row_eachfile = thresold;
+    else
+        this->row_eachfile = INFINITY;
+    
+    thread thrd[NUM_THREAD];
+    for (int cnt = 1; cnt <= NUM_THREAD; cnt++) {
+        ostringstream convert;
+        convert << cnt;
+        convert.str();
+        string fileName = "/Users/apple/Developer/Random-Forest/Random-Forest/train" + convert.str() + ".csv";
+        thrd[cnt-1] = thread(bind(&FileReader::readSingleFile, this, fileName));
+    }
+    
+    for (int cnt = 1; cnt <= NUM_THREAD; cnt++)
+        thrd[cnt-1].join();
 }

@@ -35,12 +35,13 @@ class DecisionTree
 private:
     Node *root;
     double *dataSet;
+    bool featureChosen[NUM_COLUMN];
     void binSplitData(vector<int> pSpan, vector<int> &lSpan, vector<int> &rSpan, int feature, double value);
     void chooseBestSplit(vector<int> span, int &bestIndex, double &bestValue);
     void recursive_create_tree(vector<int> span, Node* &subroot);
     double regLeaf(vector<int> span);
-    double regErr(vector<int> span);
-    void Gini(vector<int> span);
+//    double regErr(vector<int> span);
+    double Gini(vector<int> span);
 public:
     DecisionTree(double *dataSet);
     void createTree();

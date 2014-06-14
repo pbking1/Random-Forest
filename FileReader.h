@@ -28,11 +28,13 @@ class FileReader
 private:
     void readSingleFile(string filePath);
     mutex io_mutex;
+    int row_eachfile;
 public:
     FileReader();
     void split(const string& src, const string& delim);
     double *dataSet;
-    void readFileList(string dirPath);
+    void readFileList(string dirPath, int thresold);
+    /* -1 for reading the whole file*/
 };
 
 #endif /* defined(__Random_Forest__FileReader__) */

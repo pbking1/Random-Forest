@@ -31,21 +31,37 @@ double DecisionTree::regLeaf(vector<int> span)
     return mean;
 }
 
-double DecisionTree::regErr(vector<int> span)
+//double DecisionTree::regErr(vector<int> span)
+//{
+//    // Switch to Gini afterward
+//    double variance = 0;
+//    double average = 0;
+//    vector<int>::iterator iter;
+//    for (iter = span.begin(); iter != span.end(); iter++)
+//        average += dataSet[*iter * NUM_COLUMN];
+//    
+//    average = average / (double)span.size();
+//    for (iter = span.begin(); iter != span.end(); iter++)
+//        variance += (dataSet[*iter * NUM_COLUMN] - average) * (dataSet[*iter * NUM_COLUMN] - average);
+//    
+//    variance = variance / (double)span.size();
+//    return variance;
+//}
+
+double DecisionTree::Gini(vector<int> span)
 {
-    // Switch to Gini afterward
-    double variance = 0;
-    double average = 0;
-    vector<int>::iterator iter;
-    for (iter = span.begin(); iter != span.end(); iter++)
-        average += dataSet[*iter * NUM_COLUMN];
+    double result = 0;
+    int labelCnt[NUM_CATEGORIES] = {0};
+    int label = 0;
+    for (vector<int>::iterator iter = span.begin(); iter != span.end(); iter++) {
+        label = (int)dataSet[*iter * NUM_COLUMN];
+        labelCnt[label]++;
+    }
     
-    average = average / (double)span.size();
-    for (iter = span.begin(); iter != span.end(); iter++)
-        variance += (dataSet[*iter * NUM_COLUMN] - average) * (dataSet[*iter * NUM_COLUMN] - average);
-    
-    variance = variance / (double)span.size();
-    return variance;
+    for (int label = 0; label < NUM_CATEGORIES; label++)
+        result += ((double)labelCnt[label] / (double)span.size()) * ((double)labelCnt[label] / (double)span.size());
+    result = 1.0 - result;
+    return result;
 }
 
 void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bestValue)
@@ -60,12 +76,14 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bes
         return;
     }
     
-    double S = regErr(span);
-    double bestS = INFINITY;
-    double newS = INFINITY;
+    double G = Gini(span);
+    double bestG = INFINITY;
+    double newG = INFINITY;
     vector<int> lSpan, rSpan;
     
     for (int feature = 1; feature < NUM_COLUMN; feature++) {
+        if (featureChosen[feature])
+            continue;
         
         // Optimization[1]: vector -> set
         set<int> valueSet;
@@ -77,15 +95,15 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bes
             binSplitData(span, lSpan, rSpan, feature, dataSet[*iter * NUM_COLUMN + feature]);
             
             if (lSpan.size() < tolN || rSpan.size() < tolN) continue;
-            newS = regErr(lSpan) + regErr(rSpan);
-            if (newS < bestS) {
+            newG = ((double)lSpan.size() / (double)span.size()) * Gini(lSpan) + ((double)rSpan.size() / (double)span.size()) * Gini(rSpan);
+            if (newG < bestG) {
                 bestIndex = feature;
                 bestValue = dataSet[*iter * NUM_COLUMN + feature];
             }
         }
     }
     
-    if (S - bestS < tolS)
+    if (G - bestG < tolS)
         bestIndex = -1, bestValue = regLeaf(span);
     binSplitData(span, lSpan, rSpan, bestIndex, bestValue);
     if (lSpan.size() < tolN || rSpan.size() < tolS)
@@ -114,6 +132,7 @@ void DecisionTree::recursive_create_tree(vector<int> span, Node* &subroot)
     if (bestIndex == -1) return;
     
     subroot = new Node(bestIndex, bestValue);
+    featureChosen[bestIndex] = true;
     
     vector<int> lSpan, rSpan;
     binSplitData(span, lSpan, rSpan, bestIndex, bestValue);
@@ -126,6 +145,9 @@ void DecisionTree::recursive_create_tree(vector<int> span, Node* &subroot)
 DecisionTree::DecisionTree(double *dataSet)
 {
     this->dataSet = dataSet;
+    featureChosen[0] = true; // The labels
+    for (int cnt = 1; cnt < NUM_COLUMN; cnt++)
+        featureChosen[cnt] = false;
 }
 
 void DecisionTree::createTree()

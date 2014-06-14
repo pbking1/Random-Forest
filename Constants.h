@@ -11,5 +11,7 @@
 
 #define NUM_COLUMN 3073
 #define NUM_ROW 20000
+#define NUM_CATEGORIES 10
+#define NUM_THREAD 4
 
 #endif
