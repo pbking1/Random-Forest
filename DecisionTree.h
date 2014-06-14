@@ -40,6 +40,7 @@ private:
     void recursive_create_tree(vector<int> span, Node* &subroot);
     double regLeaf(vector<int> span);
     double regErr(vector<int> span);
+    void Gini(vector<int> span);
 public:
     DecisionTree(double *dataSet);
     void createTree();

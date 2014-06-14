@@ -8,6 +8,7 @@
 
 #include "DecisionTree.h"
 #include <algorithm>
+#include <set>
 #include <cmath>
 
 // Private methods
@@ -65,7 +66,14 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bes
     vector<int> lSpan, rSpan;
     
     for (int feature = 1; feature < NUM_COLUMN; feature++) {
+        
+        // Optimization[1]: vector -> set
+        set<int> valueSet;
         for (vector<int>::iterator iter = span.begin(); iter != span.end(); iter++) {
+            valueSet.insert(*iter);
+        }
+        
+        for (set<int>::iterator iter = valueSet.begin(); iter != valueSet.end(); iter++) {
             binSplitData(span, lSpan, rSpan, feature, dataSet[*iter * NUM_COLUMN + feature]);
             
             if (lSpan.size() < tolN || rSpan.size() < tolN) continue;
