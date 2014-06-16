@@ -11,6 +11,25 @@
 #include <math.h>
 
 // Private methods
+
+double DecisionTree::regLeaf_mode(vector<int> span)
+{
+    vector<int> histogram(NUM_CATEGORIES, 0);
+    for (vector<int>::iterator iter = span.begin(); iter != span.end(); iter++) {
+        histogram[dataSet[*iter * NUM_COLUMN]]++;
+    }
+    double label = 0;
+    int maxcount = 0;
+    for (size_t i = 0; i < NUM_CATEGORIES; i++)
+        if (histogram.at(i) >= maxcount) {
+            label = i;
+            maxcount = histogram.at(i);
+        }
+    
+//    cout << "[MODE] " << label << endl;
+    return label;
+}
+
 double DecisionTree::regLeaf(vector<int> span)
 {
     vector<double> allLabel;
@@ -19,6 +38,7 @@ double DecisionTree::regLeaf(vector<int> span)
         allLabel.push_back(dataSet[*iter * NUM_COLUMN]);
     }
     sort(allLabel.begin(), allLabel.end());
+    
     
     double mean = 0;
     size_t total = allLabel.size();
@@ -29,23 +49,6 @@ double DecisionTree::regLeaf(vector<int> span)
     
     return mean;
 }
-
-//double DecisionTree::regErr(vector<int> span)
-//{
-//    // Switch to Gini afterward
-//    double variance = 0;
-//    double average = 0;
-//    vector<int>::iterator iter;
-//    for (iter = span.begin(); iter != span.end(); iter++)
-//        average += dataSet[*iter * NUM_COLUMN];
-//    
-//    average = average / (double)span.size();
-//    for (iter = span.begin(); iter != span.end(); iter++)
-//        variance += (dataSet[*iter * NUM_COLUMN] - average) * (dataSet[*iter * NUM_COLUMN] - average);
-//    
-//    variance = variance / (double)span.size();
-//    return variance;
-//}
 
 double DecisionTree::Gini(vector<int> span)
 {
@@ -69,6 +72,7 @@ double DecisionTree::Gini(vector<int> span)
 
 void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bestValue)
 {
+    
     size_t counter = 1;
     double sameVal = dataSet[span.at(0) * NUM_COLUMN];
     for (size_t cnt = 1; cnt < span.size(); cnt++)
@@ -87,39 +91,39 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bes
     
 #warning 这里临时设置一个值
     for (set<int>::iterator feature = trainFeatures.begin(); feature != trainFeatures.end(); feature++) {
-        if (featureChosen[*feature]) continue;
-    }
-    
-    for (int feature = 1; feature < 56; feature++) {
-        if (featureChosen[feature])
-            continue;
+  
+//        cout << "[TrainFeatures size] " << trainFeatures.size() << endl;
         
         // Optimization[1]: vector -> set
         set<int> valueSet;
         for (vector<int>::iterator iter = span.begin(); iter != span.end(); iter++) {
-            valueSet.insert(dataSet[*iter * NUM_COLUMN + feature]);
+            valueSet.insert(dataSet[*iter * NUM_COLUMN + *feature]);
         }
         
         for (set<int>::iterator iter = valueSet.begin(); iter != valueSet.end(); iter++) {
 //            cout << "[Inner] " << *iter << endl;
-            binSplitData(span, lSpan, rSpan, feature, dataSet[*iter * NUM_COLUMN + feature]);
+            binSplitData(span, lSpan, rSpan, *feature, dataSet[*iter * NUM_COLUMN + *feature]);
             
             if (lSpan.size() < tolN || rSpan.size() < tolN) continue;
             newG = ((double)lSpan.size() / (double)span.size()) * Gini(lSpan) + ((double)rSpan.size() / (double)span.size()) * Gini(rSpan);
             if (newG < bestG) {
-                bestIndex = feature;
-                bestValue = dataSet[*iter * NUM_COLUMN + feature];
+                bestIndex = *feature;
+                bestValue = dataSet[*iter * NUM_COLUMN + *feature];
                 bestG = newG;
             }
         }
     }
     
     if (G - bestG < tolS)
-        bestIndex = -1, bestValue = regLeaf(span);
+        bestIndex = -1, bestValue = regLeaf_mode(span);
     binSplitData(span, lSpan, rSpan, bestIndex, bestValue);
     if (lSpan.size() < tolN || rSpan.size() < tolN)
-        bestIndex = -1, bestValue = regLeaf(span);
-    else { /*already stored bestIndex and bestValue*/ }
+        bestIndex = -1, bestValue = regLeaf_mode(span);
+    else {
+        /*already stored bestIndex and bestValue*/
+        trainFeatures.erase(bestIndex);
+//        cout << "[TrainFeatures size] " << trainFeatures.size() << endl;
+    }
 }
 
 void DecisionTree::binSplitData(vector<int> pSpan, vector<int> &lSpan, vector<int> &rSpan, int feature, double value)
@@ -140,14 +144,18 @@ void DecisionTree::recursive_create_tree(vector<int> span, Node* &subroot)
     int bestIndex = 0;
     double bestValue = 0;
     chooseBestSplit(span, bestIndex, bestValue);
-    // No bestIndex: Leaf
-    if (bestIndex == -1) return;
     
     subroot = new Node(bestIndex, bestValue);
+    // No bestIndex: Leaf
+    if (bestIndex == -1) {
+        cout << bestValue << " ";
+        return;
+    }
+    
     node_count++;
     featureChosen[bestIndex] = true;
-    cout << "[Create Node] [Index] " << bestIndex << " [Value] " << bestValue << endl;
-    cout << "[Tree Node Count] " << node_count << endl;
+//    cout << "[Create Node] [Index] " << bestIndex << " [Value] " << bestValue << endl;
+//    cout << "[Tree Node Count] " << node_count << endl;
     
     vector<int> lSpan, rSpan;
     binSplitData(span, lSpan, rSpan, bestIndex, bestValue);
@@ -176,12 +184,22 @@ DecisionTree::DecisionTree(double *dataSet)
 void DecisionTree::createTree()
 {
     // Recursive begin with the root Node
-    vector<int> wholeSpan;
-    for (int i = 0; i < NUM_ROW; i++) {
-        wholeSpan.push_back(i);
+    // Random 10000 rows
+    int modified_num_row = (int)(NUM_ROW * 2.0 / 3.0);
+    set<int> wholeSpan;
+    srand((unsigned)time(NULL));
+    int rand_row = 0;
+    while (wholeSpan.size() <= modified_num_row) {
+        rand_row = rand() % NUM_ROW;
+        wholeSpan.insert(rand_row);
     }
     
-    recursive_create_tree(wholeSpan, this->root);
+    vector<int> wholeSpan_vec;
+    for (set<int>::iterator iter = wholeSpan.begin(); iter != wholeSpan.end(); iter++) {
+        wholeSpan_vec.insert(wholeSpan_vec.end(), *iter);
+    }
+    
+    recursive_create_tree(wholeSpan_vec, this->root);
 }
 
 Node* DecisionTree::getRoot()

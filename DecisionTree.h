@@ -45,6 +45,7 @@ private:
     void chooseBestSplit(vector<int> span, int &bestIndex, double &bestValue);
     void recursive_create_tree(vector<int> span, Node* &subroot);
     double regLeaf(vector<int> span);
+    double regLeaf_mode(vector<int> span);
     double Gini(vector<int> span);
 public:
     DecisionTree(double *dataSet);
