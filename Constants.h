@@ -13,5 +13,7 @@
 #define NUM_ROW 20000
 #define NUM_CATEGORIES 10
 #define NUM_THREAD 8
+#define NUM_TRAIN_ROW 10000
+#define NUM_TRAIN_FEATURES 56
 
 #endif

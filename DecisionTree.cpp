@@ -8,7 +8,6 @@
 
 #include "DecisionTree.h"
 #include <algorithm>
-#include <set>
 #include <math.h>
 
 // Private methods
@@ -86,17 +85,11 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bes
     vector<int> lSpan, rSpan;
     
     
-//    int total_feature = (int)ceil(sqrt((double)span.size()));
-//    int rand_feature = 0;
-//    srand((unsigned)time(NULL));
-//    set<int> features;
-//    while (features.size() < total_feature) {
-//        rand_feature = rand() % (int)span.size();
-//        if (!featureChosen[rand_feature])
-//            features.insert(rand_feature);
-//    }
-    
 #warning 这里临时设置一个值
+    for (set<int>::iterator feature = trainFeatures.begin(); feature != trainFeatures.end(); feature++) {
+        if (featureChosen[*feature]) continue;
+    }
+    
     for (int feature = 1; feature < 56; feature++) {
         if (featureChosen[feature])
             continue;
@@ -106,7 +99,6 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bes
         for (vector<int>::iterator iter = span.begin(); iter != span.end(); iter++) {
             valueSet.insert(dataSet[*iter * NUM_COLUMN + feature]);
         }
-        cout << "[Column set count] " << feature << endl;
         
         for (set<int>::iterator iter = valueSet.begin(); iter != valueSet.end(); iter++) {
 //            cout << "[Inner] " << *iter << endl;
@@ -135,7 +127,7 @@ void DecisionTree::binSplitData(vector<int> pSpan, vector<int> &lSpan, vector<in
     lSpan.clear(), rSpan.clear();
     vector<int>::iterator it;
     for (it = pSpan.begin(); it != pSpan.end(); it++) {
-        if (dataSet[*it * NUM_COLUMN + feature] > value)
+        if (dataSet[*it * NUM_COLUMN + feature] <= value)
             lSpan.push_back(*it);
         else
             rSpan.push_back(*it);
@@ -171,6 +163,14 @@ DecisionTree::DecisionTree(double *dataSet)
     featureChosen[0] = true; // The labels
     for (int cnt = 1; cnt < NUM_COLUMN; cnt++)
         featureChosen[cnt] = false;
+    
+    // Random m = √p features(aka 56 in this case)
+    int rand_feature = 0;
+    srand((unsigned)time(NULL));
+    while (trainFeatures.size() <= NUM_TRAIN_FEATURES) {
+        rand_feature = rand() % (NUM_COLUMN-1);
+        trainFeatures.insert(rand_feature);
+    }
 }
 
 void DecisionTree::createTree()
