@@ -15,5 +15,7 @@
 #define NUM_THREAD 8
 #define NUM_TRAIN_ROW 10000
 #define NUM_TRAIN_FEATURES 56
+#define NUM_TEST_ROW 40000
+#define NUM_TREES 5
 
 #endif

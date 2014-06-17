@@ -44,11 +44,14 @@ private:
     void binSplitData(vector<int> pSpan, vector<int> &lSpan, vector<int> &rSpan, int feature, double value);
     void chooseBestSplit(vector<int> span, int &bestIndex, double &bestValue);
     void recursive_create_tree(vector<int> span, Node* &subroot);
-    double regLeaf(vector<int> span);
+    double regLeaf_mean(vector<int> span);
     double regLeaf_mode(vector<int> span);
     double Gini(vector<int> span);
+    
+    
+    int labelCount[NUM_CATEGORIES];
 public:
-    DecisionTree(double *dataSet);
+    DecisionTree(double *dataSet = NULL);
     void createTree();
     Node *getRoot();
 };

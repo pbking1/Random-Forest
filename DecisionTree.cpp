@@ -26,11 +26,22 @@ double DecisionTree::regLeaf_mode(vector<int> span)
             maxcount = histogram.at(i);
         }
     
-//    cout << "[MODE] " << label << endl;
+    vector<int> maxVector;
+    for (size_t i = 0; i < NUM_CATEGORIES; i++)
+        if (histogram.at(i) == maxcount)
+            maxVector.push_back((int)i);
+    
+    if (maxVector.size() > 1) {
+        srand((unsigned)time(NULL));
+        label = maxVector.at(rand() % (maxVector.size()-1));
+    }
+    
+//    cout << "[LABEL on leaf] " << label << endl;
+    labelCount[(int)label]++;
     return label;
 }
 
-double DecisionTree::regLeaf(vector<int> span)
+double DecisionTree::regLeaf_mean(vector<int> span)
 {
     vector<double> allLabel;
     vector<int>::iterator iter;
@@ -72,7 +83,6 @@ double DecisionTree::Gini(vector<int> span)
 
 void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, double &bestValue)
 {
-    
     size_t counter = 1;
     double sameVal = dataSet[span.at(0) * NUM_COLUMN];
     for (size_t cnt = 1; cnt < span.size(); cnt++)
@@ -148,7 +158,6 @@ void DecisionTree::recursive_create_tree(vector<int> span, Node* &subroot)
     subroot = new Node(bestIndex, bestValue);
     // No bestIndex: Leaf
     if (bestIndex == -1) {
-        cout << bestValue << " ";
         return;
     }
     
@@ -176,7 +185,7 @@ DecisionTree::DecisionTree(double *dataSet)
     int rand_feature = 0;
     srand((unsigned)time(NULL));
     while (trainFeatures.size() <= NUM_TRAIN_FEATURES) {
-        rand_feature = rand() % (NUM_COLUMN-1);
+        rand_feature = (rand() % (NUM_COLUMN-1)) + 1;
         trainFeatures.insert(rand_feature);
     }
 }
@@ -200,6 +209,14 @@ void DecisionTree::createTree()
     }
     
     recursive_create_tree(wholeSpan_vec, this->root);
+    
+    cout << "=================LABEL OF TREE================" << endl;
+    int totalLeaves = 0;
+    for (int label = 0; label < NUM_CATEGORIES; label++) {
+        cout << "[" << label << "] " << labelCount[label] << endl;
+        totalLeaves += labelCount[label];
+    }
+    cout << "[Leaves Count] " << totalLeaves << endl;
 }
 
 Node* DecisionTree::getRoot()
