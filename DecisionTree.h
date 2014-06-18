@@ -16,7 +16,7 @@
 using namespace std;
 
 #define tolS 0.001
-#define tolN 4
+#define tolN 3
 
 struct Node {
     double spInd;

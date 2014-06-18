@@ -12,7 +12,6 @@
 
 void Tester::testResult(int rowNum)
 {
-    // 写入result[rowNum-1]
     int category_out = 0;
     Node *rootMark = this->root;
     Node *cur = this->root;
@@ -76,11 +75,13 @@ void Tester::split(const string &src, const string &delim)
 
 // Public methods
 
-Tester::Tester(string testFilePath, string resultFilePath, Node *root)
+Tester::Tester(string testFilePath, Node *root)
 {
     this->testFilePath = testFilePath;
-    this->resultFilePath = resultFilePath;
     this->root = root;
+    for (int i = 0; i < NUM_CATEGORIES; i++) {
+        cateCount[i] = 0;
+    }
 }
 
 void Tester::changeRoot(Node *newRoot)
@@ -91,7 +92,7 @@ void Tester::changeRoot(Node *newRoot)
 void Tester::begin()
 {
     // Write the head
-    
+    int rowCnt = 0;
     ifstream infile(testFilePath);
     string word;
     string delim(",");
@@ -102,52 +103,24 @@ void Tester::begin()
         {
             getline(infile, textline);
             split(textline, delim);
+            rowCnt++;
+            if (rowCnt > NUM_TEST_ROW) {
+                infile.close();
+                return; 
+            }
         }
     }
     infile.close();
     
-    cout << "==========Test Result=========" << endl;
-    int total_case = 0;
-    for (int cnt = 0; cnt < NUM_CATEGORIES; cnt++) {
-        cout << "[" << cnt << "] " << cateCount[cnt] << endl;
-        total_case += cateCount[cnt];
-    }
-    cout << "[Cases count] " << total_case << endl;
-}
-
-void Tester::writeResult(int *votes)
-{
-    ofstream outfile(resultFilePath);
-    outfile << "id,label" << "\r";
-    for (int row = 0; row < NUM_TEST_ROW; row++) {
-        ostringstream convert;
-        convert << row+1;
-        outfile << convert.str() << ",";
-        
-        // Count out the label according to the votes
-        int maxCount = 0;
-        int final_decision = 0;
-        vector<int> maxVector;
-        for (int cate = 0; cate < NUM_CATEGORIES; cate++)
-            if (votes[row * NUM_CATEGORIES + cate] >= maxCount) {
-                maxCount = votes[row * NUM_CATEGORIES + cate];
-                final_decision = cate;
-            }
-        
-        for (int cate = 0; cate < NUM_CATEGORIES; cate++)
-            if (votes[row * NUM_CATEGORIES + cate] == maxCount)
-                maxVector.push_back(cate);
-        
-        if (maxVector.size() > 1) {
-            srand(unsigned(time(NULL)));
-            final_decision = maxVector.at(rand() % (maxVector.size()-1));
-        }
-        ostringstream convert_label;
-        convert_label << final_decision;
-        outfile << convert_label.str() << "\r";
-    }
-    
-    outfile.close();
+//    cout << "==========Test Result=========" << endl;
+//    int total_case = 0;
+//    for (int cnt = 0; cnt < NUM_CATEGORIES; cnt++) {
+//        cout << "[" << cnt << "] " << cateCount[cnt]
+//             << " --- " << (float)cateCount[cnt] / (float)NUM_TEST_ROW * 100
+//             << "%" << endl;
+//        total_case += cateCount[cnt];
+//    }
+//    cout << "[Cases count] " << total_case << endl;
 }
 
 void Tester::clearCateCount()

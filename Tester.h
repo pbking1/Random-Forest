@@ -21,20 +21,18 @@ class Tester
 {
 private:
     double temp_values[NUM_COLUMN-1];
-    string resultFilePath;
     string testFilePath;
     Node *root;
     void split(const string& src, const string& delim);
     void testResult(int rowNum);
-    int cateCount[NUM_CATEGORIES];
     
 public:
     int result[NUM_TEST_ROW];
+    int cateCount[NUM_CATEGORIES];
     
-    Tester(string testFilePath, string resultFilePath, Node *root = NULL);
+    Tester(string testFilePath, Node *root = NULL);
     void changeRoot(Node *newRoot);
     void begin();
-    void writeResult(int *votes);
     void clearCateCount();
 };
 
