@@ -20,19 +20,20 @@ using namespace std;
 class Tester
 {
 private:
-    double temp_values[NUM_COLUMN-1];
+    short *testData;
     string testFilePath;
     Node *root;
-    void split(const string& src, const string& delim);
-    void testResult(int rowNum);
+    
     
 public:
-    int result[NUM_TEST_ROW];
     int cateCount[NUM_CATEGORIES];
     
-    Tester(string testFilePath, Node *root = NULL);
+    Tester(Node *root = NULL);
+    void pointToData(short *dataSet);
     void changeRoot(Node *newRoot);
-    void begin();
+    int testResult(int rowNum);
+    
+    void logCalculate();
     void clearCateCount();
 };
 

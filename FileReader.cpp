@@ -25,25 +25,21 @@ void FileReader::split(const string& src, const string& delim)
     
     index = str.find_first_of(delim, start);
     id_num = str.substr(start, index-start);
-    rowNum = atof(id_num.c_str()) - 1;
+    rowNum = atoi(id_num.c_str()) - 1;
     start = str.find_first_not_of(delim, index);
     
-    for (int cnt = 0; cnt < NUM_COLUMN-1; cnt++) {
+    for (int cnt = 0; cnt < colCnt-1; cnt++) {
         index = str.find_first_of(delim, start);
         valueStr = str.substr(start, index-start);
-        double value = atof(valueStr.c_str());
-        dataSet[rowNum * NUM_COLUMN + cnt] = value;
+        short value = (short)atoi(valueStr.c_str());
+        dataSet[rowNum * colCnt + cnt] = value;
         start = str.find_first_not_of(delim, index);
     }
     
     index = str.find_first_of("\r", start);
     valueStr = str.substr(start, index-start);
-    double value = atof(valueStr.c_str());
-    dataSet[rowNum * NUM_COLUMN + NUM_COLUMN-1] = value;
-    
-    io_mutex.lock();
-    cout << rowNum+1 << " is loaded..." << endl;
-    io_mutex.unlock();
+    short value = (short)atoi(valueStr.c_str());
+    dataSet[rowNum * colCnt + colCnt-1] = value;
 }
 
 void FileReader::readSingleFile(string filePath)
@@ -66,16 +62,23 @@ void FileReader::readSingleFile(string filePath)
             }
         }
     }
+    else {
+        cout << "FILE OPEN ERROR" << endl;
+    }
     infile.close();
 }
 
 // Public methods
 
-FileReader::FileReader()
+FileReader::FileReader(int rowCnt, int colCnt)
 {
-    size_t nSize = NUM_ROW * NUM_COLUMN * sizeof(double);
+    this->rowCnt = rowCnt;
+    this->colCnt = colCnt;
+    
+    size_t nSize = rowCnt * colCnt * sizeof(short);
+    
     char *pBuf = new char[nSize];
-    dataSet = (double *)pBuf;
+    dataSet = (short *)pBuf;
 }
 
 void FileReader::readFileList(string dirPath, int thresold)
@@ -90,7 +93,8 @@ void FileReader::readFileList(string dirPath, int thresold)
         ostringstream convert;
         convert << cnt;
         convert.str();
-        string fileName = "/Users/apple/Developer/Random-Forest/Random-Forest/train" + convert.str() + ".csv";
+        string fileName = dirPath + convert.str() + ".csv";
+        cout << "FILENAME " << fileName << endl;
         thrd[cnt-1] = thread(bind(&FileReader::readSingleFile, this, fileName));
     }
     

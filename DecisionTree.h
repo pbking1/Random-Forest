@@ -19,11 +19,11 @@ using namespace std;
 #define tolN 3
 
 struct Node {
-    double spInd;
-    double spVal;
+    short spInd;
+    short spVal;
     Node *left;
     Node *right;
-    Node(double _spInd, double _spVal, Node *l = NULL, Node *r = NULL) {
+    Node(short _spInd, short _spVal, Node *l = NULL, Node *r = NULL) {
         spInd = _spInd;
         spVal = _spVal;
         left = l;
@@ -35,24 +35,24 @@ class DecisionTree
 {
 private:
     Node *root;
-    double *dataSet;
+    short *dataSet;
     bool featureChosen[NUM_COLUMN]; // TODO: fix it to map
     set<int> trainRows;  // TODO: Extendability
     set<int> trainFeatures; // TODO: Extendability
     /* Should suit dataSet of different size */
     
-    void binSplitData(vector<int> pSpan, vector<int> &lSpan, vector<int> &rSpan, int feature, double value);
-    void chooseBestSplit(vector<int> span, int &bestIndex, double &bestValue);
+    void binSplitData(vector<int> pSpan, vector<int> &lSpan, vector<int> &rSpan, int feature, short value);
+    void chooseBestSplit(vector<int> span, int &bestIndex, short &bestValue);
     void recursive_create_tree(vector<int> span, Node* &subroot);
-    double regLeaf_mean(vector<int> span);
-    double regLeaf_mode(vector<int> span);
+    short regLeaf_mode(vector<int> span);
     double Gini(vector<int> span);
     
-    
+    // Var only for logging
     int labelCount[NUM_CATEGORIES];
 public:
-    DecisionTree(double *dataSet = NULL);
+    DecisionTree(short *dataSet = NULL);
     void createTree();
+    void clearData();
     Node *getRoot();
 };
 

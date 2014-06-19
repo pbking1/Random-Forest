@@ -8,119 +8,75 @@
 
 #include "Tester.h"
 
-// Private methods
+// Public methods
 
-void Tester::testResult(int rowNum)
+Tester::Tester(Node *root)
+{
+    this->root = root;
+    for (int i = 0; i < NUM_CATEGORIES; i++) {
+        cateCount[i] = 0;
+    }
+    
+    size_t nSize = NUM_TEST_ROW * (NUM_COLUMN-1) * sizeof(short);
+    char *pBuf = new char[nSize];
+    testData = (short *)pBuf;
+}
+
+void Tester::pointToData(short *dataSet)
+{
+    this->testData = dataSet;
+}
+
+void Tester::changeRoot(Node *newRoot)
+{
+    this->root = NULL;
+    this->root = newRoot;
+}
+
+int Tester::testResult(int rowNum)
 {
     int category_out = 0;
     Node *rootMark = this->root;
     Node *cur = this->root;
     int spIndex = 0;
-    int spValue = 0;
+    short spValue = 0;
     
+//    cout << "===========RUN LEFT RIGHT============== " << rowNum << endl;
+    int step = 0;
     while ((cur->left != NULL) || (cur->right != NULL)) {
         spIndex = cur->spInd;
         spValue = cur->spVal;
-        if (temp_values[spIndex-1] <= spValue)
+        short pix = testData[rowNum * (NUM_COLUMN-1) + spIndex-1];
+        if (pix <= spValue) {
             cur = cur->left;
-        else
+//            cout << " L " << ++step << " (" << pix << "," << cur->spVal << ")";
+        }
+        else {
             cur = cur->right;
-    }
-    
-    category_out = cur->spVal;
-    this->result[rowNum] = category_out;
-    
-    cateCount[category_out]++;
-//    cout << "[CATEGORY RESULT] " << category_out << endl; 
-    this->root = rootMark;
-}
-
-void Tester::split(const string &src, const string &delim)
-{
-    if (src == "") return;
-    
-    int rowNum;
-    string str = src;
-    string::size_type start = 0, index;
-    string id_num, user_id, item_id, rating;
-    string valueStr;
-    
-    index = str.find_first_of(delim, start);
-    id_num = str.substr(start, index-start);
-    if (id_num == "id") return;
-    
-    rowNum = atof(id_num.c_str()) - 1;
-    start = str.find_first_not_of(delim, index);
-    
-    
-    if (rowNum == -1) {
-        cout << src << endl;
-    }
-    
-    for (int cnt = 0; cnt < NUM_COLUMN-2; cnt++) {
-        index = str.find_first_of(delim, start);
-        valueStr = str.substr(start, index-start);
-        double value = atof(valueStr.c_str());
-        temp_values[cnt] = value;
-        start = str.find_first_not_of(delim, index);
-    }
-    
-    index = str.find_first_of("\r", start);
-    valueStr = str.substr(start, index-start);
-    double value = atof(valueStr.c_str());
-    temp_values[NUM_COLUMN-2] = value;
-    
-    testResult(rowNum);
-}
-
-// Public methods
-
-Tester::Tester(string testFilePath, Node *root)
-{
-    this->testFilePath = testFilePath;
-    this->root = root;
-    for (int i = 0; i < NUM_CATEGORIES; i++) {
-        cateCount[i] = 0;
-    }
-}
-
-void Tester::changeRoot(Node *newRoot)
-{
-    this->root = newRoot;
-}
-
-void Tester::begin()
-{
-    // Write the head
-    int rowCnt = 0;
-    ifstream infile(testFilePath);
-    string word;
-    string delim(",");
-    string textline;
-    if(infile.good())
-    {
-        while(!infile.fail())
-        {
-            getline(infile, textline);
-            split(textline, delim);
-            rowCnt++;
-            if (rowCnt > NUM_TEST_ROW) {
-                infile.close();
-                return; 
-            }
+//            cout << " R " << ++step << " (" << pix << "," << cur->spVal << ")";
         }
     }
-    infile.close();
+//    category_out = cur->spVal;
+//    cout << endl;
+//    cout << "+++++[CATE RESULT] "<< category_out << endl;
     
-//    cout << "==========Test Result=========" << endl;
-//    int total_case = 0;
-//    for (int cnt = 0; cnt < NUM_CATEGORIES; cnt++) {
-//        cout << "[" << cnt << "] " << cateCount[cnt]
-//             << " --- " << (float)cateCount[cnt] / (float)NUM_TEST_ROW * 100
-//             << "%" << endl;
-//        total_case += cateCount[cnt];
-//    }
-//    cout << "[Cases count] " << total_case << endl;
+    cateCount[category_out]++;
+    this->root = rootMark;
+    
+    return category_out;
+}
+
+void Tester::logCalculate()
+{
+    cout << "==========Single Tree Test Result=========" << endl;
+    int total_case = 0;
+    for (int cnt = 0; cnt < NUM_CATEGORIES; cnt++) {
+        cout << "[" << cnt << "] " << cateCount[cnt]
+             << " --- " << (float)cateCount[cnt] / (float)NUM_TEST_ROW * 100
+             << "%" << endl;
+        total_case += cateCount[cnt];
+    }
+    cout << "[Cases count] " << total_case << endl;
 }
 
 void Tester::clearCateCount()

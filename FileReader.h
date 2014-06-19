@@ -29,10 +29,11 @@ private:
     void readSingleFile(string filePath);
     mutex io_mutex;
     int row_eachfile;
+    int rowCnt, colCnt;
 public:
-    FileReader();
+    FileReader(int rowCnt = 0, int colCnt = 0);
     void split(const string& src, const string& delim);
-    double *dataSet;
+    short *dataSet;
     void readFileList(string dirPath, int thresold);
     /* -1 for reading the whole file*/
 };

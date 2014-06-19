@@ -2,8 +2,8 @@
 //  main.cpp
 //  binary_search_tree
 //
-//  Created by ÁÖ ³õÑô on 12-12-13.
-//  Copyright (c) 2012Äê __MyCompanyName__. All rights reserved.
+//  Created by Â¡Ã· â‰¥Ä±â€”Ã™ on 12-12-13.
+//  Copyright (c) 2012Æ’Ã __MyCompanyName__. All rights reserved.
 //
 
 #include "FileReader.h"
@@ -23,33 +23,36 @@ mutex io_mutex;
 int treeCounter;
 int cateCnt[NUM_CATEGORIES];
 
-void forest_per_thread(double *dataSet)
+void forest_per_thread(short *trainDataSet, short *testDataSet)
 {
-    Tester tester("/Users/apple/Developer/Random-Forest/Random-Forest/test.csv");
+    Tester tester;
+    tester.pointToData(testDataSet);
+    
     for (int i = 0; i < NUM_TREES; i++)
     {
-        DecisionTree dtree(dataSet);
+        DecisionTree dtree(trainDataSet);
         dtree.createTree();
         
         tester.changeRoot(dtree.getRoot());
-        tester.begin();
         
         for (int row = 0; row < NUM_TEST_ROW; row++) {
-            votes[row * NUM_CATEGORIES + tester.result[row]] += 1;
-            cateCnt[tester.result[row]] += 1;
+            io_mutex.lock();
+            int row_result = tester.testResult(row);
+            io_mutex.unlock();
+            votes[row * NUM_CATEGORIES + row_result] += 1;
+            cateCnt[row_result] += 1;
         }
         
         io_mutex.lock();
         cout << "Tree " << treeCounter++ << " finished!" << endl;
-        io_mutex.unlock();
         
-        /*
+        
         cout << "=============10 Ex Case==============" << endl;
         for (int i = 0; i < 10; i++) {
             cout << "[" << i << "] ";
         }
         cout << endl;
-        for (int i = 0; i < 20; i++) {
+        for (int i = 10; i < 20; i++) {
             cout << " ";
             for (int j = 0; j < NUM_CATEGORIES; j++) {
                 cout << votes[i*NUM_CATEGORIES+j] << "  ";
@@ -57,12 +60,15 @@ void forest_per_thread(double *dataSet)
             cout << endl;
         }
         cout << endl;
-         */
+        
         cout << "=============CAT TOTAL==============" << endl;
         for (int j = 0; j < NUM_CATEGORIES; j++) {
 //            cateCnt[j] += tester.cateCount[j];
             cout << "[" << j << "] " << cateCnt[j] << endl;
         }
+        io_mutex.unlock();
+        
+        dtree.clearData();
         tester.clearCateCount();
     }
 }
@@ -78,14 +84,18 @@ int main(int argc, const char * argv[])
     }
     
     // Reading with multithreading under the hood
-    FileReader reader;
-    reader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/", -1);
+    FileReader trainreader(NUM_ROW, NUM_COLUMN);
+    trainreader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/train", -1);
+    cout << "===========" << endl;
+    FileReader testreader(NUM_TEST_ROW, NUM_COLUMN-1);
+    testreader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/test0", -1);
+    
     
     // Multithreading calculation
     treeCounter = 0;
     thread thrd[NUM_THREAD];
     for (int cnt = 0; cnt < NUM_THREAD; cnt++)
-        thrd[cnt] = thread(bind(&forest_per_thread, reader.dataSet));
+        thrd[cnt] = thread(bind(&forest_per_thread, trainreader.dataSet, testreader.dataSet));
     
     for (int cnt = 0; cnt < NUM_THREAD; cnt++)
         thrd[cnt].join();
