@@ -22,23 +22,25 @@ The general logic of the whole program could be inspected within the main.cpp.
 						  			
 2. FileReader - Be responsible for reading the data in the .csv file, including both the train and the test data. I use 4 threads to read the data simultaneously using file input/output stream. So in the directory, I split the train.csv into train1.csv ~ train4.csv, each of which include 5000. The science is the same for the test.csv, seperated into 4 shares, each of which containing 10000 samples.
 
-3. Tester - Run each sample way through a tree to the leaf and return a classification result.
+3. Tester - Run each sample way through a tree down to the leaf and return a classification result accordingly.
 
 4. FileWriter - In charge of writing the results to out.csv after training and testing. 
 
 
 ##Keynotes: Some Intriguing Markdowns
 ###1.Optimization measures
+* (Unfinished)Use char to store the data matrix and process bitwise operation when doing calculation. While I currently use "short" to store the matrix, which is taking up twice the size of memory use.
 * Use STL set to avoid duplicated value split operation.
-* Use non-recursive method (Heap) to build up the tree.
-* Parallelization operation, multithreading when operating prediction in both one single tree and the whole forest.
+* (Unfinished)Use non-recursive method (Heap) to build up the tree.
+* Parallelization operation(Unfinished), multithreading when operating prediction in both one single tree and the whole forest.
 
 ###2.Mathematical ideas
-* When reducing the number of training features from p to √p, the number of rows for training should also be shrank to 1/2 of the original count. Avoiding high variances in the leaf node of the tree.
+* When reducing the number of training features from p to √p, the number of rows for training should also be shrank to 2/3 of the original amount, so as to avoid high variances in the leaf nodes of the tree.
 
 ###3.Adjustment
-* Choosing the MODE but not MEAN when creating leaf node. MEAN appears to be meaningless in this specific case. 
+* Choose MODE instead of MEAN when creating leaf nodes. MEAN appears to be meaningless in this specific case. 
 
 ##TODO
 * Optimize the decision tree classification.
 * MPI will be integrated into the algorithm. 
+* Do some calculation in probability theory in order to verify the number of sample(2/3 of the original size) we use has exactly the best effect upon the result. 
