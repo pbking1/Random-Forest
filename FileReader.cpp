@@ -94,7 +94,7 @@ void FileReader::readFileList(string dirPath, int thresold)
         convert << cnt;
         convert.str();
         string fileName = dirPath + convert.str() + ".csv";
-        cout << "FILENAME " << fileName << endl;
+        cout << "Read file: " << fileName << endl;
         thrd[cnt-1] = thread(bind(&FileReader::readSingleFile, this, fileName));
     }
     

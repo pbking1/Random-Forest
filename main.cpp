@@ -32,27 +32,24 @@ void forest_per_thread(short *trainDataSet, short *testDataSet)
     {
         DecisionTree dtree(trainDataSet);
         dtree.createTree();
-        
         tester.changeRoot(dtree.getRoot());
         
         for (int row = 0; row < NUM_TEST_ROW; row++) {
-            io_mutex.lock();
             int row_result = tester.testResult(row);
-            io_mutex.unlock();
             votes[row * NUM_CATEGORIES + row_result] += 1;
             cateCnt[row_result] += 1;
         }
         
         io_mutex.lock();
-        cout << "Tree " << treeCounter++ << " finished!" << endl;
+        cout << "Tree " << treeCounter++ << " finished testing!" << endl;
+
         
-        
-        cout << "=============10 Ex Case==============" << endl;
+        cout << "=============20 Ex Case==============" << endl;
         for (int i = 0; i < 10; i++) {
             cout << "[" << i << "] ";
         }
         cout << endl;
-        for (int i = 10; i < 20; i++) {
+        for (int i = 0; i < 20; i++) {
             cout << " ";
             for (int j = 0; j < NUM_CATEGORIES; j++) {
                 cout << votes[i*NUM_CATEGORIES+j] << "  ";
@@ -61,11 +58,11 @@ void forest_per_thread(short *trainDataSet, short *testDataSet)
         }
         cout << endl;
         
-        cout << "=============CAT TOTAL==============" << endl;
-        for (int j = 0; j < NUM_CATEGORIES; j++) {
-//            cateCnt[j] += tester.cateCount[j];
-            cout << "[" << j << "] " << cateCnt[j] << endl;
-        }
+//        cout << "=============CAT TOTAL==============" << endl;
+//        for (int j = 0; j < NUM_CATEGORIES; j++) {
+////            cateCnt[j] += tester.cateCount[j];
+//            cout << "[" << j << "] " << cateCnt[j] << endl;
+//        }
         io_mutex.unlock();
         
         dtree.clearData();
@@ -86,7 +83,6 @@ int main(int argc, const char * argv[])
     // Reading with multithreading under the hood
     FileReader trainreader(NUM_ROW, NUM_COLUMN);
     trainreader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/train", -1);
-    cout << "===========" << endl;
     FileReader testreader(NUM_TEST_ROW, NUM_COLUMN-1);
     testreader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/test0", -1);
     

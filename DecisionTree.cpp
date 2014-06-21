@@ -37,7 +37,6 @@ short DecisionTree::regLeaf_mode(vector<int> span)
         label = maxVector.at(rand() % (maxVector.size()-1));
     }
     
-//    cout << "[LABEL on leaf] " << label << endl;
     labelCount[(int)label]++;
     return label;
 }
@@ -62,8 +61,9 @@ double DecisionTree::Gini(vector<int> span)
     return result;
 }
 
-void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, short &bestValue)
+void DecisionTree::chooseBestSplit(vector<int> span, set<int> features, int &bestIndex, short &bestValue)
 {
+//    cout << "[trainFeatures size] " << features.size() << endl;
     size_t counter = 1;
     short sameVal = dataSet[span.at(0) * NUM_COLUMN];
     for (size_t cnt = 1; cnt < span.size(); cnt++)
@@ -76,10 +76,10 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, short &best
     
     double G = Gini(span);
     double bestG = INFINITY;
-    double newG = INFINITY;
     vector<int> lSpan, rSpan;
     
-    for (set<int>::iterator feature = trainFeatures.begin(); feature != trainFeatures.end(); feature++) {
+    int outloop = 0, inloop = 0;
+    for (set<int>::iterator feature = features.begin(); feature != features.end(); feature++) {
         
         // Optimization[1]: vector -> set
         set<short> valueSet;
@@ -93,13 +93,17 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, short &best
             if (lSpan.size() < tolN || rSpan.size() < tolN) {
                 continue;
             }
-            newG = ((double)lSpan.size() / (double)span.size()) * Gini(lSpan) + ((double)rSpan.size() / (double)span.size()) * Gini(rSpan);
+            double newG = ((double)lSpan.size() / (double)span.size()) * Gini(lSpan) + ((double)rSpan.size() / (double)span.size()) * Gini(rSpan);
             if (newG < bestG) {
                 bestIndex = *feature;
                 bestValue = dataSet[*iter * NUM_COLUMN + *feature];
                 bestG = newG;
             }
+            inloop++;
         }
+        
+        valueSet.clear();
+        outloop++;
     }
     
     if (G - bestG < tolS) {
@@ -113,7 +117,6 @@ void DecisionTree::chooseBestSplit(vector<int> span, int &bestIndex, short &best
     }
     else {
         /*already stored bestIndex and bestValue*/
-        trainFeatures.erase(bestIndex);
     }
 }
 
@@ -129,12 +132,12 @@ void DecisionTree::binSplitData(vector<int> pSpan, vector<int> &lSpan, vector<in
     }
 }
 
-void DecisionTree::recursive_create_tree(vector<int> span, Node* &subroot)
+void DecisionTree::recursive_create_tree(vector<int> span, Node* &subroot, set<int> features)
 {
     static int node_count = 0;
     int bestIndex = 0;
     short bestValue = 0;
-    chooseBestSplit(span, bestIndex, bestValue);
+    chooseBestSplit(span, features, bestIndex, bestValue);
     
     subroot = new Node(bestIndex, bestValue);
     // No bestIndex: Leaf
@@ -142,13 +145,15 @@ void DecisionTree::recursive_create_tree(vector<int> span, Node* &subroot)
         return;
     }
     
+    features.erase(bestIndex);
+    
     node_count++;
     featureChosen[bestIndex] = true;
     
     vector<int> lSpan, rSpan;
     binSplitData(span, lSpan, rSpan, bestIndex, bestValue);
-    recursive_create_tree(lSpan, subroot->left);
-    recursive_create_tree(rSpan, subroot->right);
+    recursive_create_tree(lSpan, subroot->left, features);
+    recursive_create_tree(rSpan, subroot->right, features);
 }
 
 // Public methods
@@ -194,7 +199,7 @@ void DecisionTree::createTree()
         wholeSpan_vec.insert(wholeSpan_vec.end(), *iter);
     }
     
-    recursive_create_tree(wholeSpan_vec, this->root);
+    recursive_create_tree(wholeSpan_vec, this->root, trainFeatures);
     
     cout << "=================LABEL OF TREE================" << endl;
     int totalLeaves = 0;

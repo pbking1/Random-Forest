@@ -42,21 +42,21 @@ int Tester::testResult(int rowNum)
     short spValue = 0;
     
 //    cout << "===========RUN LEFT RIGHT============== " << rowNum << endl;
-    int step = 0;
+//    cout << "Root " << " (" << cur->spInd << "," << cur->spVal << ")--";
     while ((cur->left != NULL) || (cur->right != NULL)) {
         spIndex = cur->spInd;
         spValue = cur->spVal;
         short pix = testData[rowNum * (NUM_COLUMN-1) + spIndex-1];
         if (pix <= spValue) {
             cur = cur->left;
-//            cout << " L " << ++step << " (" << pix << "," << cur->spVal << ")";
+//            cout << " L " << " (" << cur->spInd << "," << cur->spVal << ")";
         }
         else {
             cur = cur->right;
-//            cout << " R " << ++step << " (" << pix << "," << cur->spVal << ")";
+//            cout << " R " << " (" << cur->spInd << "," << cur->spVal << ")";
         }
     }
-//    category_out = cur->spVal;
+    category_out = cur->spVal;
 //    cout << endl;
 //    cout << "+++++[CATE RESULT] "<< category_out << endl;
     

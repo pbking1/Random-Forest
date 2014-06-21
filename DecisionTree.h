@@ -42,8 +42,8 @@ private:
     /* Should suit dataSet of different size */
     
     void binSplitData(vector<int> pSpan, vector<int> &lSpan, vector<int> &rSpan, int feature, short value);
-    void chooseBestSplit(vector<int> span, int &bestIndex, short &bestValue);
-    void recursive_create_tree(vector<int> span, Node* &subroot);
+    void chooseBestSplit(vector<int> span, set<int> features, int &bestIndex, short &bestValue);
+    void recursive_create_tree(vector<int> span, Node* &subroot, set<int> features);
     short regLeaf_mode(vector<int> span);
     double Gini(vector<int> span);
     
