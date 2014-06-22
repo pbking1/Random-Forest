@@ -48,3 +48,21 @@ The general logic of the whole program could be inspected within the main.cpp.
 * Optimize the decision tree classification.
 * MPI will be integrated into the algorithm. 
 * Do some calculation in probability theory in order to verify the number of sample(2/3 of the original size) we use has exactly the best effect upon the result. 
+
+Copyright
+=======
+
+
+   Copyright (C) 2014 Chuyang Lin.
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Affero General Public License, version 3,
+   as published by the Free Software Foundation.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   GNU Affero General Public License for more details.
+
+   You should have received a copy of the GNU Affero General Public License
+   along with this program. If not, see <http://www.gnu.org/licenses/gpl.html>.
