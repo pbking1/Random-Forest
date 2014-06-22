@@ -42,8 +42,6 @@ void forest_per_thread(short *trainDataSet, short *testDataSet)
         
         io_mutex.lock();
         cout << "Tree " << treeCounter++ << " finished testing!" << endl;
-
-        
         cout << "=============20 Ex Case==============" << endl;
         for (int i = 0; i < 10; i++) {
             cout << "[" << i << "] ";
@@ -57,12 +55,7 @@ void forest_per_thread(short *trainDataSet, short *testDataSet)
             cout << endl;
         }
         cout << endl;
-        
-//        cout << "=============CAT TOTAL==============" << endl;
-//        for (int j = 0; j < NUM_CATEGORIES; j++) {
-////            cateCnt[j] += tester.cateCount[j];
-//            cout << "[" << j << "] " << cateCnt[j] << endl;
-//        }
+ 
         io_mutex.unlock();
         
         dtree.clearData();
@@ -82,9 +75,9 @@ int main(int argc, const char * argv[])
     
     // Reading with multithreading under the hood
     FileReader trainreader(NUM_ROW, NUM_COLUMN);
-    trainreader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/train", -1);
+    trainreader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/data/train", -1);
     FileReader testreader(NUM_TEST_ROW, NUM_COLUMN-1);
-    testreader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/test0", -1);
+    testreader.readFileList("/Users/apple/Developer/Random-Forest/Random-Forest/data/test", -1);
     
     
     // Multithreading calculation
@@ -97,7 +90,7 @@ int main(int argc, const char * argv[])
         thrd[cnt].join();
     
     FileWriter writer;
-    writer.writeResult(votes, "/Users/apple/Developer/Random-Forest/Random-Forest/out.csv");
+    writer.writeResult(votes, "/Users/apple/Developer/Random-Forest/Random-Forest/data/out.csv");
     
     return 0;
 }

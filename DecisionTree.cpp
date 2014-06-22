@@ -201,7 +201,7 @@ void DecisionTree::createTree()
     
     recursive_create_tree(wholeSpan_vec, this->root, trainFeatures);
     
-    cout << "=================LABEL OF TREE================" << endl;
+    cout << "=================LEAVES OF TREE================" << endl;
     int totalLeaves = 0;
     for (int label = 0; label < NUM_CATEGORIES; label++) {
         cout << "[" << label << "] " << labelCount[label] << endl;

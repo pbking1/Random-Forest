@@ -1,8 +1,7 @@
 Random-Forest
 =============
 
-Parallelization of the machine learning algorithm.
-
+Parallelization of the machine learning algorithm.</br>
 Well..The mathematical and logical stuff is exactly the grasping ideas under the hood!
 
 ##Implementation Steps
@@ -12,6 +11,11 @@ Well..The mathematical and logical stuff is exactly the grasping ideas under the
 	* Gini Coefficient 
 * Random Forest
 * Multithreading
+
+##To Run the Project
+* Note that you should adjust the 3 absolute directory paths in main.cpp according to your own computer environment to run the program.
+* The original data file, test.csv and train.csv is equally seperated into 4 pieces. With file name test1.csv~test4.csv and train1.csv~train4.csv. You should split the data before running it!
+</br>
 
 ##Classes & Tech Details
 The general logic of the whole program could be inspected within the main.cpp. 
